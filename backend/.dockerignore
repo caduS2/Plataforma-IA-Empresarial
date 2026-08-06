@@ -1,0 +1,6 @@
+.env
+.venv
+.venv-rebuilt
+__pycache__
+uploads
+*.pyc

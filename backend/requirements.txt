@@ -1,0 +1,14 @@
+alembic
+email-validator
+fastapi
+psycopg[binary]
+psycopg2-binary
+pwdlib[argon2]
+PyJWT
+pydantic-settings
+pypdf
+python-docx
+python-multipart
+SQLAlchemy
+openpyxl
+uvicorn[standard]
