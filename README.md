@@ -1,16 +1,99 @@
-# Núcleo AI
+# Núcleo — Plataforma de IA Empresarial
 
-Plataforma de conhecimento comercial com FastAPI, PostgreSQL e front-end Vinext/React.
+Plataforma SaaS multiempresa desenvolvida como projeto autoral para aplicar, na prática, conceitos de desenvolvimento backend, APIs REST, autenticação, bancos de dados, segurança, integrações e inteligência artificial.
 
-## Executar localmente
+> Projeto pessoal em evolução para beta técnico.
 
-Em um terminal, entre em `backend`, ative o ambiente virtual e inicie a API com Uvicorn. Em outro, entre em `frontend-nucleo` e execute o servidor de desenvolvimento. Mantenha os dois terminais abertos.
+---
 
-As configurações locais ficam em `backend/.env` e `frontend-nucleo/.env.local`. Nunca envie esses arquivos para o Git.
+## Sobre o projeto
 
-## Verificações
+O **Núcleo** foi desenvolvido com o objetivo de simular uma plataforma empresarial real, permitindo que diferentes empresas utilizem o mesmo sistema mantendo seus usuários, documentos e informações isolados.
 
-- Back-end: compilação Python e `alembic current`.
-- Front-end: `npm run build` e `npm test`.
+O projeto é utilizado como ambiente prático de desenvolvimento e evolução de conhecimentos em engenharia de software.
 
-Consulte `docs/STATUS_DO_PROJETO.md` e `docs/HANDOFF_PARA_OUTRA_IA.md` para o estado técnico detalhado.
+---
+
+## Principais funcionalidades
+
+- Autenticação de usuários
+- Autenticação baseada em JWT
+- Hash seguro de senhas com Argon2
+- Gerenciamento de empresas
+- Gerenciamento de usuários e equipes
+- Papéis de administrador, gestor e usuário
+- Sistema de convites
+- Recuperação de senha
+- Isolamento de dados entre empresas
+- Upload e processamento de documentos
+- Uso de documentos como fontes para respostas de IA
+- Integrações com serviços externos
+- Integrações com Banco Central e CVM
+- Endpoints de saúde e prontidão da aplicação
+- Migrations de banco de dados
+- Documentação de backup e restauração
+
+---
+
+## Tecnologias
+
+### Backend
+
+- Python
+- FastAPI
+- PostgreSQL
+- SQL
+- SQLAlchemy
+- Alembic
+- APIs REST
+
+### Segurança
+
+- JWT
+- Argon2
+- Controle de acesso por papéis
+- Variáveis de ambiente
+- CORS
+
+### Inteligência Artificial e integrações
+
+- Gemini
+- Processamento de documentos
+- Banco Central
+- CVM
+
+### Frontend
+
+- React
+- JavaScript
+- HTML5
+- CSS3
+
+### Ferramentas
+
+- Git
+- GitHub
+- Docker
+- Swagger / OpenAPI
+
+---
+
+## Arquitetura geral
+
+O projeto é dividido principalmente entre:
+
+```text
+Plataforma-IA-Empresarial/
+│
+├── backend/
+│   ├── app/
+│   ├── migrations/
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── frontend-nucleo/
+│
+├── docs/
+│
+├── README.md
+└── .gitignore
