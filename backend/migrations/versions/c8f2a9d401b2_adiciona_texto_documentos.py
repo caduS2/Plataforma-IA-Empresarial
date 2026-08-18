@@ -1,8 +1,7 @@
 """adiciona texto extraido aos documentos"""
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "c8f2a9d401b2"
 down_revision = "b7e1d3a4c291"

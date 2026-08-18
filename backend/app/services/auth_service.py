@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
 from pwdlib import PasswordHash
 
 from app.config import settings
-
 
 password_hash = PasswordHash.recommended()
 
@@ -25,10 +24,7 @@ def criar_token_acesso(
     assunto: str,
     expires_delta: timedelta | None = None,
 ) -> str:
-    expiracao = datetime.now(timezone.utc) + (
-        expires_delta
-        or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    expiracao = datetime.now(UTC) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
 
     payload: dict[str, Any] = {
         "sub": assunto,

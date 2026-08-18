@@ -8,9 +8,7 @@ from app.schemas.empresa import EmpresaCreate, EmpresaUpdate
 
 
 def listar_empresas(db: Session) -> list[Empresa]:
-    resultado = db.scalars(
-        select(Empresa).order_by(Empresa.nome)
-    )
+    resultado = db.scalars(select(Empresa).order_by(Empresa.nome))
     return list(resultado)
 
 
@@ -25,9 +23,7 @@ def buscar_empresa_por_cnpj(
     db: Session,
     cnpj: str,
 ) -> Empresa | None:
-    return db.scalar(
-        select(Empresa).where(Empresa.cnpj == cnpj)
-    )
+    return db.scalar(select(Empresa).where(Empresa.cnpj == cnpj))
 
 
 def criar_empresa(

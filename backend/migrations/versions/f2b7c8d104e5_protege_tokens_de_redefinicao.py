@@ -1,8 +1,7 @@
 """protege tokens de redefinicao de senha"""
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "f2b7c8d104e5"
 down_revision = "e1a4b6c903d4"

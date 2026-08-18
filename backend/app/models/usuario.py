@@ -1,9 +1,10 @@
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, Enum as SQLAlchemyEnum, ForeignKey, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, func
+from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
     from app.models.empresa import Empresa
 
 
-class PerfilUsuario(str, Enum):
+class PerfilUsuario(StrEnum):
     ADMIN = "admin"
     GESTOR = "gestor"
     USUARIO = "usuario"

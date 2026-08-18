@@ -5,12 +5,10 @@ from app.database.connection import engine
 
 router = APIRouter()
 
+
 @router.get("/health")
 def health_check():
-    return {
-        "status": "ok",
-        "mensagem": "API funcionando corretamente!"
-    }
+    return {"status": "ok", "mensagem": "API funcionando corretamente!"}
 
 
 @router.get("/ready")

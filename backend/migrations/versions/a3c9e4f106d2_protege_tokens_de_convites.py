@@ -1,8 +1,7 @@
 """protege tokens de convites"""
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 revision = "a3c9e4f106d2"
 down_revision = "f2b7c8d104e5"

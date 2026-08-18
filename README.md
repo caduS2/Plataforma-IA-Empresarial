@@ -1,345 +1,168 @@
-# Núcleo — Plataforma de IA Empresarial
+# Núcleo AI — Plataforma Empresarial Full Stack
 
-Plataforma SaaS multiempresa desenvolvida como projeto autoral para aplicar, na prática, conceitos de desenvolvimento backend, APIs REST, autenticação, bancos de dados, segurança, integrações e inteligência artificial.
+SaaS multiempresa para transformar conhecimento interno em respostas com fontes, automações comerciais e inteligência operacional. O projeto demonstra uma arquitetura completa com frontend moderno, backend REST, autenticação segura, PostgreSQL, testes, containers e integração contínua.
 
-> Projeto pessoal em evolução para beta técnico.
+## O que está pronto
 
----
+- Login com JWT armazenado em cookie `HttpOnly` por uma camada BFF no Next.js
+- Recuperação e redefinição de senha com token temporário armazenado apenas como hash
+- Isolamento de usuários, documentos, convites e métricas por empresa
+- Controle de acesso com perfis `admin`, `gestor` e `usuario`
+- Upload validado de PDF, DOCX, XLSX, texto, CSV e imagens até 50 MB
+- Extração de texto e respostas da IA acompanhadas das fontes internas
+- Geração de e-mail, follow-up e proposta com contexto empresarial
+- Convites seguros para novos membros
+- Indicadores oficiais do Banco Central e conectores para CVM e SEC
+- Dashboard responsivo com dados reais, estados de erro, carregamento e vazio
+- Migrações Alembic, testes Pytest/Vitest/Playwright, Ruff, ESLint e CI
+- Execução completa com Docker Compose
 
-## Sobre o projeto
-
-O **Núcleo** foi desenvolvido com o objetivo de simular uma plataforma empresarial real, permitindo que diferentes empresas utilizem o mesmo sistema mantendo seus usuários, documentos e informações isolados.
-
-O projeto é utilizado como ambiente prático de desenvolvimento e evolução de conhecimentos em engenharia de software.
-
----
-
-## Principais funcionalidades
-
-- Autenticação de usuários
-- Autenticação baseada em JWT
-- Hash seguro de senhas com Argon2
-- Gerenciamento de empresas
-- Gerenciamento de usuários e equipes
-- Papéis de administrador, gestor e usuário
-- Sistema de convites
-- Recuperação de senha
-- Isolamento de dados entre empresas
-- Upload e processamento de documentos
-- Uso de documentos como fontes para respostas de IA
-- Integrações com serviços externos
-- Integrações com Banco Central e CVM
-- Endpoints de saúde e prontidão da aplicação
-- Migrations de banco de dados
-- Documentação de backup e restauração
-
----
-
-## Tecnologias
-
-### Backend
-
-- Python
-- FastAPI
-- PostgreSQL
-- SQL
-- SQLAlchemy
-- Alembic
-- APIs REST
-
-### Segurança
-
-- JWT
-- Argon2
-- Controle de acesso por papéis
-- Variáveis de ambiente
-- CORS
-
-### Inteligência Artificial e integrações
-
-- Gemini
-- Processamento de documentos
-- Banco Central
-- CVM
-
-### Frontend
-
-- React
-- JavaScript
-- HTML5
-- CSS3
-
-### Ferramentas
-
-- Git
-- GitHub
-- Docker
-- Swagger / OpenAPI
-
----
-
-## Arquitetura geral
-
-O projeto é dividido principalmente entre:
+## Arquitetura
 
 ```text
-Plataforma-IA-Empresarial/
-│
-├── backend/
-│   ├── app/
-│   ├── migrations/
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── frontend-nucleo/
-│
-├── docs/
-│
-├── README.md
-└── .gitignore
+Navegador
+   │ cookie HttpOnly
+   ▼
+Next.js 16 (frontend-web / BFF)
+   │ Authorization: Bearer
+   ▼
+FastAPI (backend)
+   │ SQLAlchemy + Alembic
+   ▼
+PostgreSQL 17
 ```
 
-O backend concentra as APIs, regras de negócio, autenticação, acesso ao banco de dados e integrações.
+O diretório `frontend-nucleo` é a interface original preservada como referência. O produto principal e oficial é `frontend-web`.
 
-O frontend fornece a interface utilizada pelos usuários.
+## Stack
 
-A pasta `docs` contém a documentação técnica complementar do projeto.
+| Camada | Tecnologias |
+|---|---|
+| Frontend | Next.js, React, TypeScript, Tailwind CSS, Zod, Lucide |
+| Backend | Python 3.12, FastAPI, Pydantic, SQLAlchemy, Alembic |
+| Dados | PostgreSQL 17, armazenamento persistente de uploads |
+| Segurança | JWT, Argon2, cookie HttpOnly, RBAC, rate limiting, isolamento por tenant |
+| Qualidade | Pytest, Ruff, Vitest, Testing Library, Playwright, ESLint |
+| Operação | Docker, Docker Compose, GitHub Actions |
 
----
+## Início rápido com Docker
 
-## Segurança e dados sensíveis
+Pré-requisitos: Git e Docker Desktop.
 
-Credenciais, senhas, chaves de API e configurações privadas não são armazenadas no repositório público.
-
-Os principais arquivos locais são:
-
-```text
-backend/.env
-frontend-nucleo/.env.local
-```
-
-Esses arquivos são ignorados pelo Git e devem permanecer apenas no ambiente local.
-
-O arquivo `backend/.env.example` serve como referência para configurar as variáveis necessárias sem expor informações privadas.
-
----
-
-## Executando localmente
-
-### 1. Clonar o repositório
-
-```bash
-git clone https://github.com/caduS2/Plataforma-IA-Empresarial.git
-```
-
-Entre na pasta:
-
-```bash
-cd Plataforma-IA-Empresarial
-```
-
----
-
-### 2. Configurar o backend
-
-Entre na pasta do backend:
-
-```bash
-cd backend
-```
-
-Crie um ambiente virtual Python:
-
-```bash
-python -m venv .venv
-```
-
-No Windows PowerShell, ative o ambiente:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-Instale as dependências:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Crie o arquivo local de configuração usando o exemplo existente:
+1. Crie a configuração local do Docker e substitua o placeholder por uma senha aleatória longa para o PostgreSQL:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Depois configure no arquivo `.env` os dados necessários, principalmente a conexão com PostgreSQL e a chave JWT.
+2. Crie a configuração local do backend:
 
-Com o PostgreSQL configurado, aplique as migrations:
-
-```bash
-alembic upgrade head
+```powershell
+Copy-Item backend/.env.example backend/.env
 ```
 
-Inicie a API:
+3. Gere uma chave JWT e coloque o resultado em `JWT_SECRET_KEY` dentro de `backend/.env`:
 
-```bash
-python -m uvicorn app.main:app --reload --port 8000
+```powershell
+py -3.12 -c "import secrets; print(secrets.token_urlsafe(64))"
 ```
 
-A API ficará disponível em:
+4. Suba a aplicação:
+
+```powershell
+docker compose up --build -d
+```
+
+5. Crie o primeiro administrador:
+
+```powershell
+docker compose exec backend python -m app.scripts.create_admin --empresa "Empresa Demo" --nome "Administrador" --email "admin@empresa.com" --senha "TroqueEstaSenha123!"
+```
+
+6. Acesse:
+
+- Aplicação: http://localhost:3000
+- Documentação da API: http://localhost:8000/docs
+- Saúde da API: http://localhost:8000/health
+
+Para acompanhar os serviços, use `docker compose logs -f`. Para encerrar sem apagar os dados, use `docker compose down`.
+
+## Desenvolvimento local
+
+### Backend
+
+```powershell
+cd backend
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+# configure JWT_SECRET_KEY e mantenha o PostgreSQL disponível
+.\.venv\Scripts\python.exe -m alembic upgrade head
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+### Frontend
+
+Em outro terminal:
+
+```powershell
+cd frontend-web
+corepack enable
+pnpm install
+pnpm dev
+```
+
+O frontend acessa `http://127.0.0.1:8000` por padrão. Para outro endereço, copie `.env.example` para `.env.local` e altere `BACKEND_URL`.
+
+## Verificações de qualidade
+
+```powershell
+# backend
+cd backend
+.\.venv\Scripts\python.exe -m ruff check app tests
+.\.venv\Scripts\python.exe -m pytest --cov=app
+
+# frontend
+cd ..\frontend-web
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
+```
+
+O workflow em `.github/workflows/ci.yml` repete lint, tipos, testes, migrations e build em cada push e pull request.
+
+## Configuração e segredos
+
+Nunca versione `backend/.env` ou `frontend-web/.env.local`. As chaves documentadas ficam em:
+
+- `backend/.env.example`
+- `frontend-web/.env.example`
+- `docs/VARIAVEIS_DE_AMBIENTE.md`
+
+Em produção, use PostgreSQL gerenciado, HTTPS, SMTP real, uma chave JWT exclusiva, armazenamento de objetos para uploads e segredos fornecidos pela plataforma de deploy.
+
+## Decisões de segurança importantes
+
+- Não existe cadastro público: novos usuários entram por convite.
+- A primeira conta administrativa é criada por comando no ambiente controlado.
+- O token de sessão não fica acessível ao JavaScript do navegador.
+- Consultas e métricas usam sempre o `empresa_id` do usuário autenticado.
+- Tokens de convite e redefinição são persistidos como SHA-256, nunca em texto puro.
+- O backend aplica cabeçalhos de segurança e limites nos endpoints sensíveis.
+
+## Estrutura principal
 
 ```text
-http://127.0.0.1:8000
+backend/          API, domínio, migrations e testes Python
+frontend-web/     aplicação Next.js oficial, BFF e testes web
+frontend-nucleo/  interface original preservada como referência
+docs/             operação, ambiente, backup e histórico
+.github/          integração contínua
+docker-compose.yml
 ```
 
----
+## Licença
 
-### 3. Verificar o backend
-
-Com a API executando, acesse:
-
-```text
-http://127.0.0.1:8000/health
-```
-
-O projeto também possui um endpoint de prontidão que verifica a comunicação com o banco:
-
-```text
-http://127.0.0.1:8000/ready
-```
-
----
-
-### 4. Configurar o frontend
-
-Mantenha o terminal do backend aberto.
-
-Abra um **segundo terminal** e entre na pasta:
-
-```bash
-cd frontend-nucleo
-```
-
-Instale as dependências:
-
-```bash
-npm install
-```
-
-Crie o arquivo:
-
-```text
-.env.local
-```
-
-Adicione:
-
-```text
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-```
-
-Depois inicie o frontend:
-
-```bash
-npm run dev
-```
-
-O endereço para abrir a interface será informado no terminal.
-
-Backend e frontend devem permanecer executando simultaneamente durante o desenvolvimento local.
-
----
-
-## Documentação da API
-
-Com o backend funcionando, a documentação interativa gerada pelo FastAPI pode ser acessada em:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-Através do Swagger/OpenAPI é possível visualizar e testar os endpoints da aplicação.
-
----
-
-## Documentação técnica
-
-A pasta:
-
-```text
-docs/
-```
-
-contém documentação complementar relacionada a:
-
-- estado atual do projeto;
-- variáveis de ambiente;
-- backup e restauração;
-- continuidade do desenvolvimento;
-- handoff técnico.
-
-Essa documentação facilita a manutenção, compreensão e evolução do sistema.
-
----
-
-## O que este projeto demonstra
-
-O desenvolvimento do Núcleo coloca em prática conhecimentos relacionados a:
-
-- Python e FastAPI;
-- desenvolvimento de APIs REST;
-- PostgreSQL;
-- SQLAlchemy;
-- migrations com Alembic;
-- autenticação e autorização;
-- JWT e Argon2;
-- gerenciamento de usuários e empresas;
-- controle de papéis e permissões;
-- arquitetura multiempresa;
-- isolamento de dados entre empresas;
-- upload e processamento de documentos;
-- integração entre backend e frontend;
-- integrações com serviços externos;
-- inteligência artificial aplicada a software;
-- segurança de aplicações;
-- Docker;
-- Git e GitHub;
-- documentação técnica.
-
----
-
-## Status do projeto
-
-🚧 **Em desenvolvimento**
-
-O Núcleo é um projeto pessoal em evolução para beta técnico.
-
-A aplicação possui funcionalidades já desenvolvidas e validadas localmente, enquanto outras partes continuam sendo aprimoradas antes de uma futura utilização em produção.
-
-O desenvolvimento atual prioriza evolução da arquitetura, segurança, testes, integrações e qualidade técnica.
-
----
-
-## Autor
-
-**Carlos Eduardo Martini de Britto**
-
-Desenvolvedor Backend Python Júnior  
-Estudante de Análise e Desenvolvimento de Sistemas — UNIP
-
-### Principais tecnologias
-
-`Python` • `FastAPI` • `PostgreSQL` • `SQL` • `APIs REST` • `Docker` • `Git`
-
----
-
-## Objetivo profissional
-
-Este projeto faz parte do meu portfólio e demonstra conhecimentos adquiridos através do desenvolvimento prático de uma aplicação completa.
-
-Atualmente busco oportunidades como:
-
-- Desenvolvedor Backend Python Júnior
-- Desenvolvedor de Software Júnior
-- Desenvolvedor Full Stack Júnior
-- Trainee em Desenvolvimento de Software
+Projeto autoral para portfólio. Antes de reutilizar comercialmente, adicione uma licença explícita ao repositório.

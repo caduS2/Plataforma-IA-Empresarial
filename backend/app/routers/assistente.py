@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import base64
 import json
 import re
 import urllib.request
-import base64
 from pathlib import Path
 
 from fastapi import APIRouter, Depends
@@ -17,9 +17,30 @@ from app.models.usuario import Usuario
 from app.schemas.assistente import FonteResposta, PerguntaAssistente, RespostaAssistente
 from app.security import get_current_user
 
-
 router = APIRouter(prefix="/assistente", tags=["Assistente"])
-STOPWORDS = {"a", "ao", "as", "com", "da", "das", "de", "do", "dos", "e", "em", "na", "no", "nos", "o", "os", "para", "por", "que", "um", "uma"}
+STOPWORDS = {
+    "a",
+    "ao",
+    "as",
+    "com",
+    "da",
+    "das",
+    "de",
+    "do",
+    "dos",
+    "e",
+    "em",
+    "na",
+    "no",
+    "nos",
+    "o",
+    "os",
+    "para",
+    "por",
+    "que",
+    "um",
+    "uma",
+}
 
 
 def termos(texto: str) -> set[str]:
@@ -47,7 +68,14 @@ def consultar_gemini(pergunta: str, fontes: list[FonteResposta], arquivos: list[
         if not caminho.exists() or caminho.stat().st_size > 15 * 1024 * 1024:
             continue
         if documento.tipo_mime.startswith("image/") or documento.tipo_mime == "application/pdf":
-            partes.append({"inlineData": {"mimeType": documento.tipo_mime, "data": base64.b64encode(caminho.read_bytes()).decode("ascii")}})
+            partes.append(
+                {
+                    "inlineData": {
+                        "mimeType": documento.tipo_mime,
+                        "data": base64.b64encode(caminho.read_bytes()).decode("ascii"),
+                    }
+                }
+            )
     payload = json.dumps({"contents": [{"parts": partes}]}).encode("utf-8")
     request = urllib.request.Request(
         f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent?key={settings.GEMINI_API_KEY}",
@@ -70,10 +98,14 @@ def perguntar(
     db: Session = Depends(get_db),
 ) -> RespostaAssistente:
     palavras = termos(dados.pergunta)
-    documentos = list(db.scalars(select(Documento).where(
-        Documento.empresa_id == usuario_atual.empresa_id,
-        Documento.conteudo_texto.is_not(None),
-    )))
+    documentos = list(
+        db.scalars(
+            select(Documento).where(
+                Documento.empresa_id == usuario_atual.empresa_id,
+                Documento.conteudo_texto.is_not(None),
+            )
+        )
+    )
     classificados = []
     visuais: list[Documento] = []
     for documento in documentos:
@@ -95,7 +127,12 @@ def perguntar(
     ]
     if not fontes:
         fontes = [
-            FonteResposta(documento_id=documento.id, nome=documento.nome_original, trecho="Arquivo visual ou PDF escaneado analisado pela IA.", relevancia=0.1)
+            FonteResposta(
+                documento_id=documento.id,
+                nome=documento.nome_original,
+                trecho="Arquivo visual ou PDF escaneado analisado pela IA.",
+                relevancia=0.1,
+            )
             for documento in visuais[:3]
         ]
     if not fontes:

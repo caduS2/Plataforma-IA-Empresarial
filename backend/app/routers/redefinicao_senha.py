@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from secrets import token_urlsafe
 
@@ -9,10 +9,10 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database.session import get_db
 from app.models.redefinicao_senha import RedefinicaoSenha
+from app.models.usuario import Usuario
 from app.schemas.redefinicao_senha import ConfirmarRedefinicao, MensagemRedefinicao, SolicitarRedefinicao
 from app.services import email_service, usuario_service
 from app.services.auth_service import gerar_hash_senha
-
 
 router = APIRouter(prefix="/senha", tags=["Recuperacao de senha"])
 MENSAGEM_PADRAO = "Se houver uma conta com este e-mail, as instrucoes de recuperacao serao enviadas."
@@ -22,7 +22,7 @@ MENSAGEM_PADRAO = "Se houver uma conta com este e-mail, as instrucoes de recuper
 def solicitar_redefinicao(dados: SolicitarRedefinicao, db: Session = Depends(get_db)) -> MensagemRedefinicao:
     usuario = usuario_service.buscar_usuario_por_email(db, str(dados.email))
     if usuario and usuario.ativo:
-        agora = datetime.now(timezone.utc)
+        agora = datetime.now(UTC)
         db.execute(
             update(RedefinicaoSenha)
             .where(RedefinicaoSenha.usuario_id == usuario.id, RedefinicaoSenha.usado_em.is_(None))
@@ -43,11 +43,15 @@ def solicitar_redefinicao(dados: SolicitarRedefinicao, db: Session = Depends(get
 @router.post("/confirmar-redefinicao", response_model=MensagemRedefinicao)
 def confirmar_redefinicao(dados: ConfirmarRedefinicao, db: Session = Depends(get_db)) -> MensagemRedefinicao:
     token_hash = sha256(dados.token.encode()).hexdigest()
-    registro = db.scalar(select(RedefinicaoSenha).where(RedefinicaoSenha.token_hash == token_hash, RedefinicaoSenha.usado_em.is_(None)))
-    if not registro or registro.expira_em < datetime.now(timezone.utc):
+    registro = db.scalar(
+        select(RedefinicaoSenha).where(RedefinicaoSenha.token_hash == token_hash, RedefinicaoSenha.usado_em.is_(None))
+    )
+    if not registro or registro.expira_em < datetime.now(UTC):
         raise HTTPException(status_code=400, detail="Link de redefinicao invalido ou expirado.")
-    usuario = db.get(__import__("app.models.usuario", fromlist=["Usuario"]).Usuario, registro.usuario_id)
+    usuario = db.get(Usuario, registro.usuario_id)
+    if not usuario or not usuario.ativo:
+        raise HTTPException(status_code=400, detail="Link de redefinicao invalido ou expirado.")
     usuario.senha_hash = gerar_hash_senha(dados.nova_senha)
-    registro.usado_em = datetime.now(timezone.utc)
+    registro.usado_em = datetime.now(UTC)
     db.commit()
     return MensagemRedefinicao(mensagem="Senha redefinida com sucesso.")

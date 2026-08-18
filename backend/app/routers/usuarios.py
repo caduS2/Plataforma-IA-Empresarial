@@ -7,7 +7,6 @@ from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioResponse
 from app.security import get_current_user
 
-
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
 
@@ -17,9 +16,5 @@ def listar_usuarios(
     db: Session = Depends(get_db),
 ) -> list[Usuario]:
     return list(
-        db.scalars(
-            select(Usuario)
-            .where(Usuario.empresa_id == usuario_atual.empresa_id)
-            .order_by(Usuario.nome)
-        )
+        db.scalars(select(Usuario).where(Usuario.empresa_id == usuario_atual.empresa_id).order_by(Usuario.nome))
     )
