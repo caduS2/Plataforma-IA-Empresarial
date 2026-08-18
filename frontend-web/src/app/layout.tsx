@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "NÃºcleo AI", template: "%s | NÃºcleo AI" },
-  description: "Plataforma empresarial de conhecimento, automaÃ§Ã£o e inteligÃªncia artificial com fontes verificÃ¡veis.",
+  title: { default: "Núcleo AI", template: "%s | Núcleo AI" },
+  description: "Plataforma empresarial de conhecimento, automação e inteligência artificial com fontes verificáveis.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
