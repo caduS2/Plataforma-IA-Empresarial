@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,7 +11,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DATABASE_URL: str
     JWT_SECRET_KEY: str
-    JWT_ALGORITHM: str = "HS256"
+    JWT_ALGORITHM: Literal["HS256", "HS384", "HS512"] = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     PASSWORD_RESET_EXPIRE_MINUTES: int = 30
     INVITE_EXPIRE_DAYS: int = 7
@@ -36,6 +38,14 @@ class Settings(BaseSettings):
         if len(value) < 32 or value.startswith("GERAR_"):
             raise ValueError("JWT_SECRET_KEY deve ser uma chave aleatoria com pelo menos 32 caracteres.")
         return value
+
+    @field_validator("CORS_ORIGINS")
+    @classmethod
+    def validar_origens_cors(cls, value: str) -> str:
+        origins = [origin.strip() for origin in value.split(",") if origin.strip()]
+        if not origins or "*" in origins:
+            raise ValueError("CORS_ORIGINS deve listar origens explícitas quando credenciais estão habilitadas.")
+        return ",".join(origins)
 
     model_config = SettingsConfigDict(
         env_file=".env",

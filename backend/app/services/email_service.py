@@ -37,7 +37,7 @@ def enviar_redefinicao_senha(destinatario: str, token: str) -> None:
 def enviar_convite(destinatario: str, token: str) -> None:
     link = f"{settings.FRONTEND_URL.rstrip('/')}/aceitar-convite?token={token}"
     if settings.EMAIL_MODE == "console":
-        logger.info("Convite de desenvolvimento para %s: %s", destinatario, link)
+        logger.info("Convite criado para %s; configure SMTP para entrega real.", destinatario)
         return
     if settings.EMAIL_MODE != "smtp":
         raise RuntimeError("EMAIL_MODE deve ser 'console' ou 'smtp'.")

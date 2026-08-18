@@ -1,6 +1,7 @@
 """Cria a primeira empresa e o primeiro administrador de forma explícita."""
 
 import argparse
+from getpass import getpass
 
 from sqlalchemy import select
 
@@ -15,9 +16,12 @@ def main() -> None:
     parser.add_argument("--empresa", required=True)
     parser.add_argument("--nome", required=True)
     parser.add_argument("--email", required=True)
-    parser.add_argument("--senha", required=True)
+    parser.add_argument("--senha", help="Opcional; se omitida, será solicitada sem exibição no terminal.")
     args = parser.parse_args()
-    if len(args.senha) < 12:
+    senha = args.senha or getpass("Senha do administrador: ")
+    if not args.senha and senha != getpass("Confirme a senha: "):
+        parser.error("As senhas não coincidem.")
+    if len(senha) < 12:
         parser.error("A senha precisa ter pelo menos 12 caracteres.")
 
     with SessionLocal() as db:
@@ -31,7 +35,7 @@ def main() -> None:
             Usuario(
                 nome=args.nome.strip(),
                 email=email,
-                senha_hash=gerar_hash_senha(args.senha),
+                senha_hash=gerar_hash_senha(senha),
                 empresa_id=empresa.id,
                 perfil=PerfilUsuario.ADMIN,
             )

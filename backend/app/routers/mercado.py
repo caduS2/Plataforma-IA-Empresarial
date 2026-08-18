@@ -7,7 +7,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from app.config import settings
 from app.models.usuario import Usuario
@@ -91,6 +91,9 @@ def buscar_empresa_cvm(
         catalogo = carregar_json("https://dados.cvm.gov.br/api/3/action/package_show?id=cia_aberta-cad")
         recursos = catalogo["result"]["resources"]
         csv_url = next(recurso["url"] for recurso in recursos if recurso["url"].endswith(".csv"))
+        parsed_url = urllib.parse.urlparse(csv_url)
+        if parsed_url.scheme != "https" or parsed_url.hostname != "dados.cvm.gov.br":
+            raise ValueError("URL de recurso da CVM fora da origem permitida.")
         with urllib.request.urlopen(csv_url, timeout=30) as response:
             conteudo = response.read().decode("latin-1")
         termo = consulta.lower()
@@ -108,7 +111,10 @@ def buscar_empresa_cvm(
 
 
 @router.get("/sec/empresa/{cik}", response_model=EmpresaUsa)
-def consultar_empresa_sec(cik: str, _: Usuario = Depends(get_current_user)) -> EmpresaUsa:
+def consultar_empresa_sec(
+    cik: str = Path(pattern=r"^\d{1,10}$"),
+    _: Usuario = Depends(get_current_user),
+) -> EmpresaUsa:
     if not settings.SEC_USER_AGENT:
         raise HTTPException(
             status_code=503, detail="A fonte SEC precisa de um identificador de contato configurado antes do uso."
