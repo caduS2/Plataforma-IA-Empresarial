@@ -2,6 +2,15 @@
 
 SaaS multiempresa para transformar conhecimento interno em respostas com fontes, automações comerciais e inteligência operacional. O projeto demonstra uma arquitetura completa com frontend moderno, backend REST, autenticação segura, PostgreSQL, testes, containers e integração contínua.
 
+## Aplicação publicada
+
+- Frontend: [nucleo-ai-frontend.onrender.com](https://nucleo-ai-frontend.onrender.com)
+- API: [nucleo-ai-api.onrender.com](https://nucleo-ai-api.onrender.com)
+- Documentação OpenAPI: [nucleo-ai-api.onrender.com/docs](https://nucleo-ai-api.onrender.com/docs)
+- Prontidão do banco: [nucleo-ai-api.onrender.com/ready](https://nucleo-ai-api.onrender.com/ready)
+
+O frontend e o backend são Web Services independentes no Render. Contas não são abertas por cadastro público: o primeiro administrador é provisionado no ambiente controlado e os demais usuários entram por convite.
+
 ## O que está pronto
 
 - Login com JWT armazenado em cookie `HttpOnly` por uma camada BFF no Next.js
@@ -76,8 +85,10 @@ docker compose up --build -d
 5. Crie o primeiro administrador:
 
 ```powershell
-docker compose exec backend python -m app.scripts.create_admin --empresa "Empresa Demo" --nome "Administrador" --email "admin@empresa.com" --senha "TroqueEstaSenha123!"
+docker compose exec backend python -m app.scripts.create_admin --empresa "Empresa Demo" --nome "Administrador" --email "admin@empresa.com"
 ```
+
+A senha é solicitada e confirmada sem aparecer no terminal.
 
 6. Acesse:
 
@@ -119,7 +130,8 @@ O frontend acessa `http://127.0.0.1:8000` por padrão. Para outro endereço, cop
 ```powershell
 # backend
 cd backend
-.\.venv\Scripts\python.exe -m ruff check app tests
+.\.venv\Scripts\python.exe -m ruff check .
+.\.venv\Scripts\python.exe -m ruff format --check .
 .\.venv\Scripts\python.exe -m pytest --cov=app
 
 # frontend
@@ -143,6 +155,17 @@ Nunca versione `backend/.env` ou `frontend-web/.env.local`. As chaves documentad
 
 Em produção, use PostgreSQL gerenciado, HTTPS, SMTP real, uma chave JWT exclusiva, armazenamento de objetos para uploads e segredos fornecidos pela plataforma de deploy.
 
+## Deploy no Render
+
+O deploy utiliza os Dockerfiles versionados. O frontend oficial deve ser configurado como Web Service com:
+
+- Root Directory: `frontend-web`
+- Dockerfile Path: `./Dockerfile`
+- `BACKEND_URL=https://nucleo-ai-api.onrender.com`
+- Health Check Path: `/login`
+
+O processo Next.js escuta `0.0.0.0` e respeita a variável dinâmica `PORT` fornecida pelo Render. O backend executa `alembic upgrade head` antes de iniciar o FastAPI e expõe `/health` e `/ready`.
+
 ## Decisões de segurança importantes
 
 - Não existe cadastro público: novos usuários entram por convite.
@@ -162,6 +185,18 @@ docs/             operação, ambiente, backup e histórico
 .github/          integração contínua
 docker-compose.yml
 ```
+
+## Limitações conhecidas
+
+- PDFs escaneados e imagens dependem da capacidade visual do provedor de IA; não há OCR local completo.
+- E-mails reais exigem SMTP configurado no ambiente de produção.
+- Uploads em produção devem usar armazenamento persistente ou de objetos; o filesystem efêmero não é suficiente.
+- Rate limiting é local ao processo e deve ser distribuído antes de escalar horizontalmente.
+- Observabilidade externa e backups automáticos dependem do provedor de infraestrutura.
+
+## Uso profissional
+
+Textos objetivos para currículo, LinkedIn, Workana e entrevistas estão em [`docs/PORTFOLIO.md`](docs/PORTFOLIO.md).
 
 ## Licença
 

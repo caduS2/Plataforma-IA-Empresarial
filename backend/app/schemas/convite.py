@@ -14,7 +14,7 @@ class ConviteCreate(BaseModel):
 class ConviteAceitar(BaseModel):
     token: str = Field(min_length=20, max_length=96)
     nome: str = Field(min_length=2, max_length=150)
-    senha: str = Field(min_length=8, max_length=128)
+    senha: str = Field(min_length=12, max_length=128)
 
 
 class ConviteResponse(BaseModel):

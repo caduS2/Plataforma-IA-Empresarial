@@ -16,7 +16,7 @@ class UsuarioCreate(BaseModel):
         examples=["maria@empresa.com"],
     )
     senha: str = Field(
-        min_length=8,
+        min_length=12,
         max_length=128,
         examples=["SenhaSegura123!"],
     )

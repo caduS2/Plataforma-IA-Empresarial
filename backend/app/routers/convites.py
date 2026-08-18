@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database.session import get_db
 from app.models.convite import Convite
-from app.models.usuario import Usuario
+from app.models.usuario import PerfilUsuario, Usuario
 from app.schemas.convite import ConviteAceitar, ConviteCreate, ConviteResponse
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse
 from app.security import require_manager
@@ -18,17 +18,19 @@ from app.services import email_service, usuario_service
 router = APIRouter(prefix="/convites", tags=["Convites"])
 
 
-@router.get("/", response_model=list[ConviteResponse])
+@router.get("", response_model=list[ConviteResponse])
 def listar_convites(usuario: Usuario = Depends(require_manager), db: Session = Depends(get_db)) -> list[Convite]:
     return list(
         db.scalars(select(Convite).where(Convite.empresa_id == usuario.empresa_id).order_by(Convite.criado_em.desc()))
     )
 
 
-@router.post("/", response_model=ConviteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=ConviteResponse, status_code=status.HTTP_201_CREATED)
 def criar_convite(
     dados: ConviteCreate, usuario: Usuario = Depends(require_manager), db: Session = Depends(get_db)
 ) -> Convite:
+    if dados.perfil is PerfilUsuario.ADMIN and usuario.perfil is not PerfilUsuario.ADMIN:
+        raise HTTPException(status_code=403, detail="Apenas administradores podem convidar outro administrador.")
     email = str(dados.email).lower()
     if usuario_service.buscar_usuario_por_email(db, email):
         raise HTTPException(status_code=409, detail="Este e-mail ja possui acesso.")

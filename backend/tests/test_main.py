@@ -22,3 +22,12 @@ def test_health_deve_responder() -> None:
 def test_rota_protegida_exige_token() -> None:
     response = client.get("/auth/me")
     assert response.status_code in {401, 403}
+
+
+def test_criacao_de_convite_nao_redireciona_post() -> None:
+    response = client.post(
+        "/convites",
+        json={"email": "convidado@example.com", "perfil": "usuario"},
+        follow_redirects=False,
+    )
+    assert response.status_code in {401, 403}
