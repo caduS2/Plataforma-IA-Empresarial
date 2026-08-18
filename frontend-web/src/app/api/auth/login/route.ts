@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { backendEndpoint, isSecureRequest, SESSION_COOKIE } from "@/lib/backend";
+import { BACKEND_REQUEST_TIMEOUT_MS, backendEndpoint, isSecureRequest, SESSION_COOKIE } from "@/lib/backend";
 
 const credentialsSchema = z.object({ email: z.email(), senha: z.string().min(8).max(128) });
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(parsed.data),
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(BACKEND_REQUEST_TIMEOUT_MS),
     });
     const data = await backendResponse.json().catch(() => ({ detail: "O servidor devolveu uma resposta inválida." }));
     if (!backendResponse.ok) return NextResponse.json(data, { status: backendResponse.status });
