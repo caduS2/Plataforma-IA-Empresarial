@@ -1,17 +1,25 @@
-# Status do Projeto
+# Status do projeto
 
-## Validado localmente
+## Estado validado
 
-- API FastAPI e PostgreSQL com migrações aplicadas.
-- Cadastro, login, sessão e recuperação de senha.
-- Convites com token protegido, cancelamento e reenvio.
-- Isolamento de documentos por empresa.
-- Upload validado para PDF, Word, planilhas, texto e imagens.
-- Copilot com fontes internas e integração local configurada.
-- Build e testes de renderização do front-end.
+- Frontend oficial em `frontend-web`, desenvolvido com Next.js, React e TypeScript.
+- Backend FastAPI conectado ao PostgreSQL com SQLAlchemy e migrations Alembic.
+- Autenticação JWT mediada por BFF, com cookie `HttpOnly`, `Secure` em HTTPS e `SameSite=Lax`.
+- Isolamento multiempresa aplicado a usuários, documentos, convites, dashboard e respostas com fontes.
+- Recuperação de senha e convites com tokens persistidos somente como hash.
+- Ruff, Pytest, ESLint, TypeScript, Vitest, Playwright e builds Docker validados.
+- CI versionada em `.github/workflows/ci.yml`.
+- Backend público com `/health` e `/ready` funcionais no Render.
+- Frontend configurado para respeitar `0.0.0.0:$PORT` no Render.
 
-## Ainda não pronto para produção
+## Operação externa necessária
 
-- É necessário substituir a chave JWT de exemplo por uma chave forte no ambiente de produção.
-- SMTP, SEC e fornecedores comerciais de dados ainda dependem de credenciais.
-- OCR local completo, monitoramento externo, backup automatizado e publicação ainda precisam de implantação operacional.
+- Confirmar o deploy do commit mais recente no serviço `nucleo-ai-frontend`.
+- Provisionar o primeiro administrador pelo shell privado do backend, caso ainda não exista.
+- Configurar SMTP para entrega real de convites e recuperação de senha.
+- Configurar armazenamento persistente para uploads antes de uso contínuo em produção.
+
+## Limitações transparentes
+
+- OCR local completo, rate limiting distribuído, observabilidade externa e backup automatizado não fazem parte desta versão.
+- Gemini e SEC ficam indisponíveis enquanto suas variáveis opcionais não estiverem configuradas.
