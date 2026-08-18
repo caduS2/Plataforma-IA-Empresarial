@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Núcleo AI", template: "%s | Núcleo AI" },
-  description: "Plataforma empresarial de conhecimento, automação e inteligência artificial com fontes verificáveis.",
+  title: { default: "NÃºcleo AI", template: "%s | NÃºcleo AI" },
+  description: "Plataforma empresarial de conhecimento, automaÃ§Ã£o e inteligÃªncia artificial com fontes verificÃ¡veis.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="pt-BR"
