@@ -3,23 +3,11 @@ from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.models.usuario import Usuario
-from app.schemas.usuario import LoginRequest, TokenResponse, UsuarioCreate, UsuarioResponse
+from app.schemas.usuario import LoginRequest, TokenResponse, UsuarioResponse
 from app.security import get_current_user
-from app.services import auth_service, empresa_service, usuario_service
-
+from app.services import auth_service, usuario_service
 
 router = APIRouter(prefix="/auth", tags=["Autenticacao"])
-
-
-@router.post("/cadastro", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
-def cadastrar_usuario(dados: UsuarioCreate, db: Session = Depends(get_db)) -> UsuarioResponse:
-    empresa = empresa_service.buscar_empresa_por_id(db, dados.empresa_id)
-    if not empresa:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Empresa nao encontrada.")
-
-    if usuario_service.buscar_usuario_por_email(db, str(dados.email)):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ja existe um usuario cadastrado com este e-mail.")
-    return usuario_service.criar_usuario(db, dados)
 
 
 @router.post("/login", response_model=TokenResponse)

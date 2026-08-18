@@ -6,7 +6,6 @@ from email.message import EmailMessage
 
 from app.config import settings
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -46,7 +45,9 @@ def enviar_convite(destinatario: str, token: str) -> None:
     mensagem["Subject"] = "Convite para a Núcleo AI"
     mensagem["From"] = settings.EMAIL_FROM
     mensagem["To"] = destinatario
-    mensagem.set_content(f"Você foi convidado para a Núcleo AI. Aceite em até {settings.INVITE_EXPIRE_DAYS} dias: {link}")
+    mensagem.set_content(
+        f"Você foi convidado para a Núcleo AI. Aceite em até {settings.INVITE_EXPIRE_DAYS} dias: {link}"
+    )
     with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as servidor:
         if settings.SMTP_STARTTLS:
             servidor.starttls()

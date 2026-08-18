@@ -14,7 +14,6 @@ from app.models.usuario import Usuario
 from app.schemas.mercado import EmpresaCvm, EmpresaUsa, FonteExterna, IndicadorMacro, PontoIndicador
 from app.security import get_current_user
 
-
 router = APIRouter(prefix="/mercado", tags=["Dados de mercado"])
 INDICADORES = {
     "selic": ("432", "Taxa Selic"),
@@ -32,9 +31,24 @@ def carregar_json(url: str, headers: dict[str, str] | None = None) -> object:
 @router.get("/fontes", response_model=list[FonteExterna])
 def listar_fontes(_: Usuario = Depends(get_current_user)) -> list[FonteExterna]:
     return [
-        FonteExterna(nome="Banco Central do Brasil", tipo="Indicadores macroeconomicos", url="https://www.bcb.gov.br/estatisticas", atualizacao="Conforme a serie"),
-        FonteExterna(nome="CVM Dados Abertos", tipo="Companhias abertas e fundos", url="https://dados.cvm.gov.br/", atualizacao="Diaria ou periodica"),
-        FonteExterna(nome="SEC EDGAR", tipo="Empresas listadas nos EUA", url="https://www.sec.gov/edgar", atualizacao="Conforme novos filings"),
+        FonteExterna(
+            nome="Banco Central do Brasil",
+            tipo="Indicadores macroeconomicos",
+            url="https://www.bcb.gov.br/estatisticas",
+            atualizacao="Conforme a serie",
+        ),
+        FonteExterna(
+            nome="CVM Dados Abertos",
+            tipo="Companhias abertas e fundos",
+            url="https://dados.cvm.gov.br/",
+            atualizacao="Diaria ou periodica",
+        ),
+        FonteExterna(
+            nome="SEC EDGAR",
+            tipo="Empresas listadas nos EUA",
+            url="https://www.sec.gov/edgar",
+            atualizacao="Conforme novos filings",
+        ),
     ]
 
 
@@ -48,14 +62,24 @@ def consultar_indicador(
         raise HTTPException(status_code=404, detail="Indicador nao suportado.")
     codigo, nome = INDICADORES[indicador]
     try:
-        dados = carregar_json(f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/{limite}?formato=json")
+        dados = carregar_json(
+            f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/{limite}?formato=json"
+        )
         pontos = [
-            PontoIndicador(data=datetime.strptime(item["data"], "%d/%m/%Y").date(), valor=float(item["valor"].replace(",", ".")))
+            PontoIndicador(
+                data=datetime.strptime(item["data"], "%d/%m/%Y").date(), valor=float(item["valor"].replace(",", "."))
+            )
             for item in dados
         ]
     except Exception as exc:
         raise HTTPException(status_code=502, detail="Nao foi possivel consultar o Banco Central agora.") from exc
-    return IndicadorMacro(codigo=codigo, nome=nome, fonte="Banco Central do Brasil (SGS)", atualizado_em=pontos[-1].data if pontos else None, pontos=pontos)
+    return IndicadorMacro(
+        codigo=codigo,
+        nome=nome,
+        fonte="Banco Central do Brasil (SGS)",
+        atualizado_em=pontos[-1].data if pontos else None,
+        pontos=pontos,
+    )
 
 
 @router.get("/cvm/empresas", response_model=list[EmpresaCvm])
@@ -86,13 +110,20 @@ def buscar_empresa_cvm(
 @router.get("/sec/empresa/{cik}", response_model=EmpresaUsa)
 def consultar_empresa_sec(cik: str, _: Usuario = Depends(get_current_user)) -> EmpresaUsa:
     if not settings.SEC_USER_AGENT:
-        raise HTTPException(status_code=503, detail="A fonte SEC precisa de um identificador de contato configurado antes do uso.")
+        raise HTTPException(
+            status_code=503, detail="A fonte SEC precisa de um identificador de contato configurado antes do uso."
+        )
     codigo = cik.zfill(10)
     try:
         dados = carregar_json(
             f"https://data.sec.gov/submissions/CIK{codigo}.json",
             headers={"User-Agent": settings.SEC_USER_AGENT, "Accept-Encoding": "gzip, deflate"},
         )
-        return EmpresaUsa(cik=codigo, nome=dados["name"], ticker=(dados.get("tickers") or [None])[0], descricao=dados.get("sicDescription"))
+        return EmpresaUsa(
+            cik=codigo,
+            nome=dados["name"],
+            ticker=(dados.get("tickers") or [None])[0],
+            descricao=dados.get("sicDescription"),
+        )
     except Exception as exc:
         raise HTTPException(status_code=502, detail="Nao foi possivel consultar a SEC agora.") from exc

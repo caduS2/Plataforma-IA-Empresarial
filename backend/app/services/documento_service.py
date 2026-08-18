@@ -7,12 +7,17 @@ from docx import Document as WordDocument
 from openpyxl import load_workbook
 from pypdf import PdfReader
 
-
 FORMATOS_SUPORTADOS = {
-    ".txt": {"text/plain"}, ".md": {"text/markdown", "text/plain"}, ".csv": {"text/csv", "application/csv", "text/plain"},
-    ".pdf": {"application/pdf"}, ".docx": {"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
-    ".xlsx": {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}, ".xlsm": {"application/vnd.ms-excel.sheet.macroenabled.12"},
-    ".png": {"image/png"}, ".jpg": {"image/jpeg"}, ".jpeg": {"image/jpeg"},
+    ".txt": {"text/plain"},
+    ".md": {"text/markdown", "text/plain"},
+    ".csv": {"text/csv", "application/csv", "text/plain"},
+    ".pdf": {"application/pdf"},
+    ".docx": {"application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+    ".xlsx": {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+    ".xlsm": {"application/vnd.ms-excel.sheet.macroenabled.12"},
+    ".png": {"image/png"},
+    ".jpg": {"image/jpeg"},
+    ".jpeg": {"image/jpeg"},
 }
 
 

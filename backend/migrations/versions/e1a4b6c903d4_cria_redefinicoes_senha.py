@@ -1,9 +1,8 @@
 """cria redefinicoes de senha"""
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "e1a4b6c903d4"
 down_revision = "d9e5f7a802c3"
@@ -15,7 +14,12 @@ def upgrade() -> None:
     op.create_table(
         "redefinicoes_senha",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("usuario_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "usuario_id",
+            postgresql.UUID(as_uuid=True),
+            sa.ForeignKey("usuarios.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("token", sa.String(length=96), nullable=False),
         sa.Column("expira_em", sa.DateTime(timezone=True), nullable=False),
         sa.Column("usado_em", sa.DateTime(timezone=True), nullable=True),

@@ -10,9 +10,7 @@ def buscar_usuario_por_email(
     db: Session,
     email: str,
 ) -> Usuario | None:
-    return db.scalar(
-        select(Usuario).where(Usuario.email == email.lower())
-    )
+    return db.scalar(select(Usuario).where(Usuario.email == email.lower()))
 
 
 def criar_usuario(

@@ -22,7 +22,13 @@ def listar_documentos(
     usuario_atual: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[Documento]:
-    return list(db.scalars(select(Documento).where(Documento.empresa_id == usuario_atual.empresa_id).order_by(Documento.criado_em.desc())))
+    return list(
+        db.scalars(
+            select(Documento)
+            .where(Documento.empresa_id == usuario_atual.empresa_id)
+            .order_by(Documento.criado_em.desc())
+        )
+    )
 
 
 @router.post("/upload", response_model=DocumentoResponse, status_code=status.HTTP_201_CREATED)
@@ -48,7 +54,16 @@ async def enviar_documento(
     destination = directory / safe_name
     destination.write_bytes(content)
     status_processamento = "indexado" if texto_extraido else "aguardando_ocr"
-    documento = Documento(empresa_id=usuario_atual.empresa_id, usuario_id=usuario_atual.id, nome_original=nome_original, caminho_arquivo=str(destination), tipo_mime=arquivo.content_type or "application/octet-stream", tamanho_bytes=len(content), status=status_processamento, conteudo_texto=texto_extraido)
+    documento = Documento(
+        empresa_id=usuario_atual.empresa_id,
+        usuario_id=usuario_atual.id,
+        nome_original=nome_original,
+        caminho_arquivo=str(destination),
+        tipo_mime=arquivo.content_type or "application/octet-stream",
+        tamanho_bytes=len(content),
+        status=status_processamento,
+        conteudo_texto=texto_extraido,
+    )
     db.add(documento)
     db.commit()
     db.refresh(documento)

@@ -4,11 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.empresa import EmpresaCreate, EmpresaResponse, EmpresaUpdate
 from app.models.usuario import Usuario
-from app.security import require_admin
+from app.schemas.empresa import EmpresaCreate, EmpresaResponse, EmpresaUpdate
+from app.security import get_current_user, require_admin
 from app.services import empresa_service
-
 
 router = APIRouter(
     prefix="/empresas",
@@ -23,6 +22,7 @@ router = APIRouter(
 )
 def criar_empresa(
     dados: EmpresaCreate,
+    _: Usuario = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> EmpresaResponse:
     if dados.cnpj and empresa_service.buscar_empresa_por_cnpj(db, dados.cnpj):
@@ -39,9 +39,11 @@ def criar_empresa(
     response_model=list[EmpresaResponse],
 )
 def listar_empresas(
+    usuario_atual: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[EmpresaResponse]:
-    return empresa_service.listar_empresas(db)
+    empresa = empresa_service.buscar_empresa_por_id(db, usuario_atual.empresa_id)
+    return [empresa] if empresa else []
 
 
 @router.get(
@@ -50,8 +52,11 @@ def listar_empresas(
 )
 def buscar_empresa(
     empresa_id: UUID,
+    usuario_atual: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> EmpresaResponse:
+    if empresa_id != usuario_atual.empresa_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado para esta empresa.")
     empresa = empresa_service.buscar_empresa_por_id(db, empresa_id)
 
     if not empresa:

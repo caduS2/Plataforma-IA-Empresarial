@@ -11,8 +11,12 @@ from app.database.session import Base
 class Documento(Base):
     __tablename__ = "documentos"
     id: Mapped[UUID] = mapped_column(PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4)
-    empresa_id: Mapped[UUID] = mapped_column(PostgreSQLUUID(as_uuid=True), ForeignKey("empresas.id", ondelete="CASCADE"), index=True)
-    usuario_id: Mapped[UUID | None] = mapped_column(PostgreSQLUUID(as_uuid=True), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True)
+    empresa_id: Mapped[UUID] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("empresas.id", ondelete="CASCADE"), index=True
+    )
+    usuario_id: Mapped[UUID | None] = mapped_column(
+        PostgreSQLUUID(as_uuid=True), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True
+    )
     nome_original: Mapped[str] = mapped_column(String(255), nullable=False)
     caminho_arquivo: Mapped[str] = mapped_column(String(500), nullable=False)
     tipo_mime: Mapped[str] = mapped_column(String(120), nullable=False)

@@ -8,7 +8,6 @@ from app.schemas.assistente import PerguntaAssistente
 from app.schemas.automacao import AutomacaoGerada, GerarAutomacao
 from app.security import get_current_user
 
-
 router = APIRouter(prefix="/automacoes", tags=["Automacoes"])
 INSTRUCOES = {
     "email": "Crie um e-mail comercial objetivo, com assunto e corpo, usando somente fontes internas.",
@@ -23,5 +22,7 @@ def gerar_automacao(
     usuario: Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AutomacaoGerada:
-    resposta = perguntar(PerguntaAssistente(pergunta=f"{INSTRUCOES[dados.tipo]}\n\nContexto: {dados.contexto}"), usuario, db)
+    resposta = perguntar(
+        PerguntaAssistente(pergunta=f"{INSTRUCOES[dados.tipo]}\n\nContexto: {dados.contexto}"), usuario, db
+    )
     return AutomacaoGerada(tipo=dados.tipo, conteudo=resposta.resposta, fontes=resposta.fontes, modo=resposta.modo)

@@ -9,7 +9,6 @@ from app.config import settings
 from app.database.session import get_db
 from app.models.usuario import PerfilUsuario, Usuario
 
-
 security = HTTPBearer()
 
 
