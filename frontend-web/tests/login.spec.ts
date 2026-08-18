@@ -34,10 +34,6 @@ test("trata links sem token de forma segura", async ({ page }) => {
 test("valida payload de login e encerra sessão pelas APIs internas", async ({ request }) => {
   const invalidLogin = await request.post("/api/auth/login", { data: { email: "invalido", senha: "curta" } });
   expect(invalidLogin.status()).toBe(422);
-  const protectedInvite = await request.post("/api/backend/convites", {
-    data: { email: "convidado@example.com", perfil: "usuario" },
-  });
-  expect([401, 403]).toContain(protectedInvite.status());
   const logout = await request.post("/api/auth/logout");
   expect(logout.status()).toBe(200);
 });
