@@ -7,6 +7,7 @@ import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 
 import { AuthShell } from "@/components/auth-shell";
 import { Button, Spinner } from "@/components/ui";
+import { DemoButton } from "@/components/demo-button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,5 +27,5 @@ export default function LoginPage() {
     finally { setLoading(false); }
   }
 
-  return <AuthShell eyebrow="ACESSO SEGURO" title="Bem-vindo de volta" description="Entre com a conta criada pelo administrador da sua empresa."><form className="form-stack" onSubmit={entrar}><label>E-mail profissional<div className="input-wrap"><Mail size={17}/><input aria-label="E-mail profissional" type="email" autoComplete="email" value={email} onChange={(event)=>setEmail(event.target.value)} placeholder="voce@empresa.com" required/></div></label><label><span className="label-row">Senha <Link href="/esqueci-minha-senha">Esqueci minha senha</Link></span><div className="input-wrap"><LockKeyhole size={17}/><input aria-label="Senha" type="password" autoComplete="current-password" minLength={8} value={senha} onChange={(event)=>setSenha(event.target.value)} required/></div></label>{erro && <p className="form-error" role="alert">{erro}</p>}<Button className="primary" disabled={loading} type="submit">{loading ? <><Spinner/>Entrando...</> : <>Entrar na plataforma <ArrowRight size={17}/></>}</Button></form><p className="auth-help">Precisa de acesso? Solicite um convite ao administrador da sua empresa.</p></AuthShell>;
+  return <AuthShell eyebrow="ACESSO SEGURO" title="Bem-vindo de volta" description="Entre com a conta criada pelo administrador da sua empresa."><form className="form-stack" onSubmit={entrar}><label>E-mail profissional<div className="input-wrap"><Mail size={17}/><input aria-label="E-mail profissional" type="email" autoComplete="email" value={email} onChange={(event)=>setEmail(event.target.value)} placeholder="voce@empresa.com" required/></div></label><label><span className="label-row">Senha <Link href="/esqueci-minha-senha">Esqueci minha senha</Link></span><div className="input-wrap"><LockKeyhole size={17}/><input aria-label="Senha" type="password" autoComplete="current-password" minLength={8} value={senha} onChange={(event)=>setSenha(event.target.value)} required/></div></label>{erro && <p className="form-error" role="alert">{erro}</p>}<Button className="primary" disabled={loading} type="submit">{loading ? <><Spinner/>Entrando...</> : <>Entrar na plataforma <ArrowRight size={17}/></>}</Button></form><div className="auth-divider"><span>ou</span></div><DemoButton className="button" label="Experimentar demonstração"/><p className="auth-help">Precisa de acesso? Solicite um convite ao administrador da sua empresa.</p></AuthShell>;
 }

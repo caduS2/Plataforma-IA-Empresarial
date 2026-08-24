@@ -43,7 +43,7 @@ _requests_lock = Lock()
 async def proteger_requisicao(request: Request, call_next):
     path = request.url.path
     limit = settings.RATE_LIMIT_AI_REQUESTS if path == "/assistente/perguntar" else settings.RATE_LIMIT_AUTH_REQUESTS
-    if path in {"/auth/login", "/senha/solicitar-redefinicao", "/assistente/perguntar"}:
+    if path in {"/auth/login", "/auth/demo", "/senha/solicitar-redefinicao", "/assistente/perguntar"}:
         chave = f"{path}:{request.client.host if request.client else 'desconhecido'}"
         agora = monotonic()
         async with _requests_lock:

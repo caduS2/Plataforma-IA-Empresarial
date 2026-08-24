@@ -13,6 +13,13 @@ export async function api<T>(endpoint: string, options: RequestInit = {}): Promi
     cache: "no-store",
     headers: { Accept: "application/json", ...(isForm ? {} : { "Content-Type": "application/json" }), ...options.headers },
   });
+  if (response.status === 401) {
+    // Sessão expirada ou inválida: o BFF já removeu o cookie. Os componentes redirecionam ao login
+    // quando detectam este erro via `err.name === "SessionExpiredError"`.
+    const err = new Error("Sua sessão expirou. Entre novamente para continuar.");
+    err.name = "SessionExpiredError";
+    throw err;
+  }
   if (!response.ok) {
     const problem = (await response.json().catch(() => ({}))) as ApiProblem;
     throw new Error(problemMessage(problem));
