@@ -10,56 +10,191 @@ permissions:
 jobs:
   backend:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:17-alpine
         env:
           POSTGRES_DB: nucleo_ai_test
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ci-${{ github.run_id }}-${{ github.run_attempt }}
-        ports: ["5432:5432"]
+          POSTGRES_PASSWORD: postgres_ci_password
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd "pg_isready -U postgres -d nucleo_ai_test"
-          --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
-      DATABASE_URL: postgresql+psycopg://postgres:ci-${{ github.run_id }}-${{ github.run_attempt }}@localhost:5432/nucleo_ai_test
+      DATABASE_URL: postgresql+psycopg://postgres:postgres_ci_password@localhost:5432/nucleo_ai_test
+      FRONTEND_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12", cache: pip, cache-dependency-path: backend/requirements-dev.txt }
-      - run: pip install -r requirements-dev.txt
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install backend dependencies
         working-directory: backend
+        run: pip install -r requirements-dev.txt
+
       - name: Generate ephemeral JWT secret
-        run: echo "JWT_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(48))')" >> "$GITHUB_ENV"
-      - run: alembic upgrade head
+        run: |
+          echo "JWT_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(48))')" >> "$GITHUB_ENV"
+
+      - name: Run database migrations
         working-directory: backend
-      - run: ruff check .
+        run: alembic upgrade head
+
+      - name: Ruff check
         working-directory: backend
-      - run: ruff format --check .
+        run: ruff check .
+
+      - name: Ruff format check
         working-directory: backend
-      - run: pytest --cov=app --cov-report=term-missing
+        run: ruff format --check .
+
+      - name: Backend tests
         working-directory: backend
+        run: pytest --cov=app --cov-report=term-missing
 
   frontend:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v4
-        with: { version: 11.19.0 }
+        with:
+          version: 11.19.0
+
       - uses: actions/setup-node@v4
-        with: { node-version: "22", cache: pnpm, cache-dependency-path: frontend-web/pnpm-lock.yaml }
-      - run: pnpm install --frozen-lockfile
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: frontend-web/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
         working-directory: frontend-web
-      - run: pnpm lint
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend lint
         working-directory: frontend-web
-      - run: pnpm typecheck
+        run: pnpm lint
+
+      - name: Frontend typecheck
         working-directory: frontend-web
-      - run: pnpm test
+        run: pnpm typecheck
+
+      - name: Frontend unit tests
         working-directory: frontend-web
-      - run: pnpm exec playwright install --with-deps chromium
+        run: pnpm test
+
+      - name: Frontend build
         working-directory: frontend-web
-      - run: pnpm test:e2e
+        env:
+          BACKEND_URL: http://127.0.0.1:8000
+        run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: nucleo_ai_e2e
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_e2e_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nucleo_ai_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres_e2e_password@localhost:5432/nucleo_ai_e2e
+      FRONTEND_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+      BACKEND_URL: http://127.0.0.1:8000
+      E2E_EMAIL: admin@demo.com
+      E2E_SENHA: DemoSenha@123
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements-dev.txt
+
+      - name: Generate ephemeral JWT secret
+        run: |
+          echo "JWT_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(48))')" >> "$GITHUB_ENV"
+
+      - name: Run database migrations
+        working-directory: backend
+        run: alembic upgrade head
+
+      - name: Create E2E user
+        working-directory: backend
+        run: python -m scripts.seed_e2e
+
+      - name: Start backend
+        working-directory: backend
+        run: |
+          nohup uvicorn app.main:app \
+            --host 127.0.0.1 \
+            --port 8000 \
+            > /tmp/nucleo-backend.log 2>&1 &
+
+      - name: Wait for backend
+        run: |
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/health > /dev/null; then
+              echo "Backend esta pronto."
+              exit 0
+            fi
+
+            echo "Aguardando backend... tentativa $i"
+            sleep 2
+          done
+
+          echo "Backend nao iniciou."
+          cat /tmp/nucleo-backend.log
+          exit 1
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: frontend-web/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
         working-directory: frontend-web
-      - run: pnpm build
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
         working-directory: frontend-web
-        env: { BACKEND_URL: "http://127.0.0.1:8000" }
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        working-directory: frontend-web
+        run: pnpm test:e2e
