@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { formatBytes } from "./api";
-import { isSecureRequest } from "./backend";
+import { BACKEND_REQUEST_TIMEOUT_MS, isSecureRequest } from "./backend";
 
 describe("formatBytes", () => {
   it("formata bytes, kilobytes e megabytes", () => {
@@ -23,5 +23,11 @@ describe("isSecureRequest", () => {
         new Request("http://frontend:3000/api/auth/login", { headers: { "x-forwarded-proto": "https" } }),
       ),
     ).toBe(true);
+  });
+});
+
+describe("BACKEND_REQUEST_TIMEOUT_MS", () => {
+  it("tolera a inicialização a frio do Render Free", () => {
+    expect(BACKEND_REQUEST_TIMEOUT_MS).toBeGreaterThanOrEqual(60_000);
   });
 });

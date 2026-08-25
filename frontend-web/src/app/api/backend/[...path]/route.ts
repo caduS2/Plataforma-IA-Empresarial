@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-import { backendEndpoint, isSecureRequest, SESSION_COOKIE } from "@/lib/backend";
+import { BACKEND_REQUEST_TIMEOUT_MS, backendEndpoint, isSecureRequest, SESSION_COOKIE } from "@/lib/backend";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
@@ -16,7 +16,12 @@ async function proxy(request: NextRequest, context: RouteContext) {
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("Content-Type", contentType);
   if (token) headers.set("Authorization", `Bearer ${token}`);
-  const init: RequestInit = { method: request.method, headers, cache: "no-store", signal: AbortSignal.timeout(30_000) };
+  const init: RequestInit = {
+    method: request.method,
+    headers,
+    cache: "no-store",
+    signal: AbortSignal.timeout(BACKEND_REQUEST_TIMEOUT_MS),
+  };
   if (!["GET", "HEAD"].includes(request.method)) init.body = await request.arrayBuffer();
   try {
     const backendResponse = await fetch(backendEndpoint(`/${path.join("/")}${incomingUrl.search}`), init);
