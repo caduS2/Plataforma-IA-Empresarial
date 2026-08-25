@@ -3,7 +3,11 @@
 SaaS multiempresa para transformar conhecimento interno em respostas com fontes, automações comerciais e inteligência operacional. O projeto demonstra uma arquitetura completa com frontend moderno, backend REST, autenticação segura, PostgreSQL, testes, containers e integração contínua.
 
 ## Aplicação publicada
-
+> 🚀 **Demo online:** [Acessar o Núcleo AI](https://nucleo-ai-frontend.onrender.com)
+>
+> Para testar sem cadastro, clique em **“Experimentar demonstração”** na aplicação. O Demo Mode cria um ambiente isolado para explorar o dashboard, documentos e recursos principais sem usar dados de produção.
+>
+> **Observação:** como o projeto está hospedado no Render, o primeiro acesso pode levar alguns segundos enquanto o backend sai do estado de repouso.
 - Frontend: [nucleo-ai-frontend.onrender.com](https://nucleo-ai-frontend.onrender.com)
 - API: [nucleo-ai-api.onrender.com](https://nucleo-ai-api.onrender.com)
 - Documentação OpenAPI: [nucleo-ai-api.onrender.com/docs](https://nucleo-ai-api.onrender.com/docs)
